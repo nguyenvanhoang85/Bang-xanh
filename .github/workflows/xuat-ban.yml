@@ -1,15 +1,13 @@
-# Xuất bản trang lên GitHub Pages và tự cập nhật tin giáo dục mỗi 3 giờ
-name: Xuat ban va cap nhat
+# Địa chỉ cũ: chỉ xuất bản trang chuyển hướng sang https://bangxanh.github.io
+name: Xuat ban trang chuyen huong
 
 on:
   push:
     branches: [main]
-  schedule:
-    - cron: "17 */3 * * *"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -25,32 +23,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Lay tin giao duc moi (VnExpress, Tuoi Tre, Thanh Nien)
-        run: node scripts/update-news.js site/data/news.json site/data/version.json
-
-      - name: Luu tin moi vao kho (giu lich chay luon hoat dong)
-        run: |
-          git config user.name "bang-xanh-bot"
-          git config user.email "bang-xanh-bot@users.noreply.github.com"
-          git add site/data/news.json site/data/version.json
-          git diff --cached --quiet || (git commit -m "Cap nhat tin giao duc" && git push)
-
-      - name: Cau hinh GitHub Pages
-        id: pages
-        uses: actions/configure-pages@v5
-
-      - name: Tao trang hoc lieu cho Google va sitemap
-        run: node scripts/build-seo.js site "${{ steps.pages.outputs.base_url }}"
-
+      - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
-
       - name: Xuat ban
         id: deployment
         uses: actions/deploy-pages@v4
